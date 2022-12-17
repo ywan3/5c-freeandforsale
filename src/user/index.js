@@ -1,0 +1,1 @@
+import { ddbClient } from './ddbClient';

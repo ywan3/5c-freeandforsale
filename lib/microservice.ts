@@ -8,6 +8,7 @@ interface SwnMicroservicesProps{
     productTable : ITable;
     basketTable : ITable;
     orderTable : ITable;
+    userTable : ITable;
 }
 
 export class SwnMicroservices extends Construct{
@@ -15,6 +16,7 @@ export class SwnMicroservices extends Construct{
     public readonly productMicroservice : NodejsFunction;
     public readonly basketMicroservice : NodejsFunction;
     public readonly orderMicroservice : NodejsFunction;
+    public readonly userMicroservice : NodejsFunction;
 
     constructor(scope : Construct, id : string, props : SwnMicroservicesProps){
         super(scope, id);
@@ -22,7 +24,7 @@ export class SwnMicroservices extends Construct{
         this.productMicroservice = this.createProductFunction(props.productTable);
         this.basketMicroservice = this.createBasketFunction(props.basketTable);
         this.orderMicroservice = this.createOrderFunction(props.orderTable);
-
+        this.userMicroservice = this.createUserFunction(props.userTable);
     }
 
     private createProductFunction(productTable : ITable) : NodejsFunction {
@@ -104,5 +106,29 @@ export class SwnMicroservices extends Construct{
       orderTable.grantReadWriteData(orderFunction);
 
       return orderFunction;
+    }
+
+
+    private createUserFunction(userTable : ITable) : NodejsFunction {
+      const nodeJsFunctionProps : NodejsFunctionProps = {
+        bundling : {
+          externalModules: [
+            'aws-sdk'
+          ]
+        },
+        environment : {
+          DYNAMODB_TABLE_NAME : userTable.tableName
+        },
+        runtime : Runtime.NODEJS_14_X
+      }
+
+      const userFunction  = new NodejsFunction(this, 'userLambdaFunction', {
+        entry: join(__dirname, `/../src/user/index.js`),
+        ...nodeJsFunctionProps
+      });
+
+      userTable.grantReadWriteData(userFunction);
+
+      return userFunction;
     }
 }

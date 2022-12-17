@@ -23,13 +23,15 @@ export class AwsEcommerceStack extends cdk.Stack {
     const microservices = new SwnMicroservices(this, 'Microservices', {
       productTable : database.productTable,
       basketTable : database.basketTable,
-      orderTable : database.orderTable
+      orderTable : database.orderTable,
+      userTable : database.userTable
     });
 
     const apiGateway = new SwnApiGateway(this, 'ApiGateway', {
       productMicroservice : microservices.productMicroservice,
       basketMicroservice : microservices.basketMicroservice,
-      orderMicroservice : microservices.orderMicroservice
+      orderMicroservice : microservices.orderMicroservice,
+      userMicroservice : microservices.userMicroservice
     });
 
 
